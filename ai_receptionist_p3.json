@@ -88,7 +88,7 @@
     {
       "parameters": {
         "mode": "raw",
-        "jsonOutput": "{\n  \"platform\": {\n    \"name\": \"Growth Spike AI Front Desk\",\n    \"version\": \"1.0.0\",\n    \"environment\": \"production\"\n  },\n  \"business\": {\n    \"name\": \"Glow MedSpa\",\n    \"industry\": \"Medical Spa\",\n    \"timezone\": \"Asia/Kolkata\",\n    \"currency\": \"INR\",\n    \"website\": \"https://www.glowmedspa.com\",\n    \"email\": \"hello@growthspikeai.com\",\n    \"phone\": \"+91XXXXXXXXXX\",\n    \"address\": \"New Delhi, India\"\n  },\n  \"voice\": {\n    \"assistantName\": \"Emma\",\n    \"personality\": \"Warm, professional, confident and conversational\",\n    \"tone\": \"Friendly\",\n    \"language\": \"English\",\n    \"maxResponseLength\": 120\n  },\n  \"calendar\": {\n    \"calendarId\": \"59053a19b2e79c6517db9122b856cf318657c5d4c4ad78cfeb6441bf479569d5@group.calendar.google.com\",\n    \"slotDuration\": 60,\n    \"bufferMinutes\": 15,\n    \"workingHours\": {\n      \"monday\": {\n        \"start\": \"09:00\",\n        \"end\": \"18:00\"\n      },\n      \"tuesday\": {\n        \"start\": \"09:00\",\n        \"end\": \"18:00\"\n      },\n      \"wednesday\": {\n        \"start\": \"09:00\",\n        \"end\": \"18:00\"\n      },\n      \"thursday\": {\n        \"start\": \"09:00\",\n        \"end\": \"18:00\"\n      },\n      \"friday\": {\n        \"start\": \"09:00\",\n        \"end\": \"18:00\"\n      },\n      \"saturday\": {\n        \"start\": \"10:00\",\n        \"end\": \"16:00\"\n      },\n      \"sunday\": {\n        \"closed\": true\n      }\n    }\n  },\n  \"policies\": {\n    \"cancellationNoticeHours\": 24,\n    \"lateArrivalGraceMinutes\": 15,\n    \"minimumBookingNoticeHours\": 2,\n    \"maximumAdvanceBookingDays\": 90\n  },\n  \"services\": [\n    {\n      \"id\": \"botox\",\n      \"name\": \"Botox Consultation\",\n      \"price\": {\n        \"amount\": 12000,\n        \"currency\": \"INR\"\n      },\n      \"duration\": 30,\n      \"consultationRequired\": true,\n      \"description\": \"Botox consultation and wrinkle treatment.\"\n    },\n    {\n      \"id\": \"hydrafacial\",\n      \"name\": \"HydraFacial\",\n      \"price\": {\n        \"amount\": 3500,\n        \"currency\": \"INR\"\n      },\n      \"duration\": 60,\n      \"consultationRequired\": false,\n      \"description\": \"Deep cleansing and hydration facial.\"\n    },\n    {\n      \"id\": \"laser\",\n      \"name\": \"Laser Hair Removal\",\n      \"price\": {\n        \"amount\": 5000,\n        \"currency\": \"INR\"\n      },\n      \"duration\": 45,\n      \"consultationRequired\": true,\n      \"description\": \"Laser hair reduction treatment.\"\n    },\n    {\n      \"id\": \"fillers\",\n      \"name\": \"Dermal Fillers\",\n      \"price\": {\n        \"amount\": 18000,\n        \"currency\": \"INR\"\n      },\n      \"duration\": 45,\n      \"consultationRequired\": true,\n      \"description\": \"Facial volume restoration using dermal fillers.\"\n    },\n    {\n      \"id\": \"microneedling\",\n      \"name\": \"Microneedling\",\n      \"price\": {\n        \"amount\": 6500,\n        \"currency\": \"INR\"\n      },\n      \"duration\": 60,\n      \"consultationRequired\": true,\n      \"description\": \"Collagen induction therapy.\"\n    },\n    {\n      \"id\": \"chemical_peel\",\n      \"name\": \"Chemical Peel\",\n      \"price\": {\n        \"amount\": 4500,\n        \"currency\": \"INR\"\n      },\n      \"duration\": 45,\n      \"consultationRequired\": false,\n      \"description\": \"Skin resurfacing treatment.\"\n    }\n  ],\n  \"faq\": {\n    \"consultation\": \"Some treatments require a consultation before booking.\",\n    \"aftercare\": \"Specific aftercare instructions will be provided after treatment.\",\n    \"payment\": \"Major cards, UPI and cash are accepted.\"\n  },\n  \"integrations\": {\n    \"googleCalendar\": true,\n    \"googleSheets\": true,\n    \"gmail\": true,\n    \"knowledgeBase\": true,\n    \"crm\": false,\n    \"sms\": false\n  },\n  \"logging\": {\n    \"enabled\": true,\n    \"storeCalls\": true,\n    \"storeBookings\": true,\n    \"storeErrors\": true\n  },\n  \"ai\": {\n    \"allowMedicalAdvice\": false,\n    \"fallbackMessage\": \"I'm not completely sure about that. Let me have one of our specialists contact you.\",\n    \"escalateUnknownQuestions\": true,\n    \"useKnowledgeBase\": true\n  }\n}",
+        "jsonOutput": "{\n  \"platform\": {\n    \"name\": \"Growth Spike AI Front Desk\",\n    \"version\": \"1.0.0\",\n    \"environment\": \"production\"\n  },\n  \"business\": {\n    \"name\": \"Glow MedSpa\",\n    \"industry\": \"Medical Spa\",\n    \"timezone\": \"Asia/Kolkata\",\n    \"currency\": \"INR\",\n    \"website\": \"https://www.glowmedspa.com\",\n    \"email\": \"hello@growthspikeai.com\",\n    \"phone\": \"+91XXXXXXXXXX\",\n    \"address\": \"New Delhi, India\"\n  },\n  \"voice\": {\n    \"assistantName\": \"Emma\",\n    \"personality\": \"Warm, professional, confident and conversational\",\n    \"tone\": \"Friendly\",\n    \"language\": \"English\",\n    \"maxResponseLength\": 120\n  },\n  \"calendar\": {\n    \"calendarId\": \"YOUR_CALENDAR_ID@group.calendar.google.com\",\n    \"slotDuration\": 60,\n    \"bufferMinutes\": 15,\n    \"workingHours\": {\n      \"monday\": {\n        \"start\": \"09:00\",\n        \"end\": \"18:00\"\n      },\n      \"tuesday\": {\n        \"start\": \"09:00\",\n        \"end\": \"18:00\"\n      },\n      \"wednesday\": {\n        \"start\": \"09:00\",\n        \"end\": \"18:00\"\n      },\n      \"thursday\": {\n        \"start\": \"09:00\",\n        \"end\": \"18:00\"\n      },\n      \"friday\": {\n        \"start\": \"09:00\",\n        \"end\": \"18:00\"\n      },\n      \"saturday\": {\n        \"start\": \"10:00\",\n        \"end\": \"16:00\"\n      },\n      \"sunday\": {\n        \"closed\": true\n      }\n    }\n  },\n  \"policies\": {\n    \"cancellationNoticeHours\": 24,\n    \"lateArrivalGraceMinutes\": 15,\n    \"minimumBookingNoticeHours\": 2,\n    \"maximumAdvanceBookingDays\": 90\n  },\n  \"services\": [\n    {\n      \"id\": \"botox\",\n      \"name\": \"Botox Consultation\",\n      \"price\": {\n        \"amount\": 12000,\n        \"currency\": \"INR\"\n      },\n      \"duration\": 30,\n      \"consultationRequired\": true,\n      \"description\": \"Botox consultation and wrinkle treatment.\"\n    },\n    {\n      \"id\": \"hydrafacial\",\n      \"name\": \"HydraFacial\",\n      \"price\": {\n        \"amount\": 3500,\n        \"currency\": \"INR\"\n      },\n      \"duration\": 60,\n      \"consultationRequired\": false,\n      \"description\": \"Deep cleansing and hydration facial.\"\n    },\n    {\n      \"id\": \"laser\",\n      \"name\": \"Laser Hair Removal\",\n      \"price\": {\n        \"amount\": 5000,\n        \"currency\": \"INR\"\n      },\n      \"duration\": 45,\n      \"consultationRequired\": true,\n      \"description\": \"Laser hair reduction treatment.\"\n    },\n    {\n      \"id\": \"fillers\",\n      \"name\": \"Dermal Fillers\",\n      \"price\": {\n        \"amount\": 18000,\n        \"currency\": \"INR\"\n      },\n      \"duration\": 45,\n      \"consultationRequired\": true,\n      \"description\": \"Facial volume restoration using dermal fillers.\"\n    },\n    {\n      \"id\": \"microneedling\",\n      \"name\": \"Microneedling\",\n      \"price\": {\n        \"amount\": 6500,\n        \"currency\": \"INR\"\n      },\n      \"duration\": 60,\n      \"consultationRequired\": true,\n      \"description\": \"Collagen induction therapy.\"\n    },\n    {\n      \"id\": \"chemical_peel\",\n      \"name\": \"Chemical Peel\",\n      \"price\": {\n        \"amount\": 4500,\n        \"currency\": \"INR\"\n      },\n      \"duration\": 45,\n      \"consultationRequired\": false,\n      \"description\": \"Skin resurfacing treatment.\"\n    }\n  ],\n  \"faq\": {\n    \"consultation\": \"Some treatments require a consultation before booking.\",\n    \"aftercare\": \"Specific aftercare instructions will be provided after treatment.\",\n    \"payment\": \"Major cards, UPI and cash are accepted.\"\n  },\n  \"integrations\": {\n    \"googleCalendar\": true,\n    \"googleSheets\": true,\n    \"gmail\": true,\n    \"knowledgeBase\": true,\n    \"crm\": false,\n    \"sms\": false\n  },\n  \"logging\": {\n    \"enabled\": true,\n    \"storeCalls\": true,\n    \"storeBookings\": true,\n    \"storeErrors\": true\n  },\n  \"ai\": {\n    \"allowMedicalAdvice\": false,\n    \"fallbackMessage\": \"I'm not completely sure about that. Let me have one of our specialists contact you.\",\n    \"escalateUnknownQuestions\": true,\n    \"useKnowledgeBase\": true\n  }\n}",
         "includeOtherFields": true,
         "options": {}
       },
@@ -284,7 +284,7 @@
         "operation": "getAll",
         "calendar": {
           "__rl": true,
-          "value": "59053a19b2e79c6517db9122b856cf318657c5d4c4ad78cfeb6441bf479569d5@group.calendar.google.com",
+          "value": "YOUR_CALENDAR_ID@group.calendar.google.com",
           "mode": "list",
           "cachedResultName": "Med Spa (GS)"
         },
@@ -347,7 +347,7 @@
       "parameters": {
         "calendar": {
           "__rl": true,
-          "value": "59053a19b2e79c6517db9122b856cf318657c5d4c4ad78cfeb6441bf479569d5@group.calendar.google.com",
+          "value": "YOUR_CALENDAR_ID@group.calendar.google.com",
           "mode": "list",
           "cachedResultName": "Med Spa (GS)"
         },
@@ -503,7 +503,7 @@
         "operation": "getAll",
         "calendar": {
           "__rl": true,
-          "value": "59053a19b2e79c6517db9122b856cf318657c5d4c4ad78cfeb6441bf479569d5@group.calendar.google.com",
+          "value": "YOUR_CALENDAR_ID@group.calendar.google.com",
           "mode": "list",
           "cachedResultName": "Med Spa (GS)"
         },
@@ -672,7 +672,7 @@
         "operation": "getAll",
         "calendar": {
           "__rl": true,
-          "value": "59053a19b2e79c6517db9122b856cf318657c5d4c4ad78cfeb6441bf479569d5@group.calendar.google.com",
+          "value": "YOUR_CALENDAR_ID@group.calendar.google.com",
           "mode": "list",
           "cachedResultName": "Med Spa (GS)"
         },
@@ -782,7 +782,7 @@
         "operation": "getAll",
         "calendar": {
           "__rl": true,
-          "value": "59053a19b2e79c6517db9122b856cf318657c5d4c4ad78cfeb6441bf479569d5@group.calendar.google.com",
+          "value": "YOUR_CALENDAR_ID@group.calendar.google.com",
           "mode": "list",
           "cachedResultName": "Med Spa (GS)"
         },
@@ -859,7 +859,7 @@
         "operation": "update",
         "calendar": {
           "__rl": true,
-          "value": "59053a19b2e79c6517db9122b856cf318657c5d4c4ad78cfeb6441bf479569d5@group.calendar.google.com",
+          "value": "YOUR_CALENDAR_ID@group.calendar.google.com",
           "mode": "list",
           "cachedResultName": "Med Spa (GS)"
         },
@@ -980,7 +980,7 @@
         "operation": "getAll",
         "calendar": {
           "__rl": true,
-          "value": "59053a19b2e79c6517db9122b856cf318657c5d4c4ad78cfeb6441bf479569d5@group.calendar.google.com",
+          "value": "YOUR_CALENDAR_ID@group.calendar.google.com",
           "mode": "list",
           "cachedResultName": "Med Spa (GS)"
         },
@@ -1056,7 +1056,7 @@
         "operation": "delete",
         "calendar": {
           "__rl": true,
-          "value": "59053a19b2e79c6517db9122b856cf318657c5d4c4ad78cfeb6441bf479569d5@group.calendar.google.com",
+          "value": "YOUR_CALENDAR_ID@group.calendar.google.com",
           "mode": "list",
           "cachedResultName": "Med Spa (GS)"
         },
@@ -1170,7 +1170,7 @@
         "select": "channel",
         "channelId": {
           "__rl": true,
-          "value": "C0BPCKVGJF5",
+          "value": "YOUR_SLACK_CHANNEL_ID",
           "mode": "list",
           "cachedResultName": "recep-daily-summaries"
         },
@@ -1198,10 +1198,10 @@
         "operation": "append",
         "documentId": {
           "__rl": true,
-          "value": "1uDj2pkBWIj3SqSsYGsSwAkR55ogZhj-Eq9j48sTKlG0",
+          "value": "YOUR_SPREADSHEET_ID",
           "mode": "list",
           "cachedResultName": "Med Spa booking agent",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uDj2pkBWIj3SqSsYGsSwAkR55ogZhj-Eq9j48sTKlG0/edit?usp=drivesdk"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_SPREADSHEET_ID/edit?usp=drivesdk"
         },
         "sheetName": {
           "__rl": true,
