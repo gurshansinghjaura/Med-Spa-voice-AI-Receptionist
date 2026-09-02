@@ -13,7 +13,10 @@ Two supporting workflows round this out:
 - **`medspa_knowledge_base_seeder.json`** — seeds a vector knowledge base with services, pricing, aftercare, and consultation-requirement info so the receptionist can answer policy questions without giving medical advice.
 - **`daily_summary.json`** — runs every night at 8 PM IST, reads the day's call log, and posts a summary (bookings, reschedules, cancellations, questions answered, busiest service) to Slack so the owner has a nightly report without opening a spreadsheet.
 
-![n8n canvas screenshot](YOUR_SCREENSHOT_HERE)
+![n8n canvas screenshot] <img width="2254" height="1397" alt="image" src="https://github.com/user-attachments/assets/e23be2d0-a38e-414e-ae68-8c1fb3cac2dc" />
+Med Spa Knowledge Base Seeder <img width="2258" height="1399" alt="image" src="https://github.com/user-attachments/assets/386a64dd-73db-4138-8ea7-e8095487838c" />
+Med Spa Daily Summaries <img width="2263" height="1400" alt="image" src="https://github.com/user-attachments/assets/bcb3700d-9b4a-463a-9d01-532daba6e90b" />
+
 
 ## Key technical decisions
 - Centralized date/time parsing into a single node that accepts multiple formats and field names (used by both the booking and reschedule tools) to eliminate a class of silent parsing bugs where each tool call handled dates differently.
