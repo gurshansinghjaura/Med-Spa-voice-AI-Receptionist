@@ -4,7 +4,7 @@
 An AI voice receptionist for a medical spa that answers inbound calls, books/reschedules/cancels appointments directly on Google Calendar, and answers service and pricing questions — without a human ever picking up the phone. It works with both Vapi.ai and ElevenLabs Conversational AI as the voice layer, with n8n as the backend brain.
 
 ## Demo
-🎥 [Watch the 4-minute walkthrough](YOUR_LOOM_LINK_HERE)
+🎥 [Watch the 4-minute walkthrough] https://youtu.be/sddY8Vey7-c
 
 ## Architecture
 A single webhook receives function/tool-call events from the voice platform (Vapi or ElevenLabs). The payload is normalized into one common shape regardless of which platform sent it, then a date/time parser converts whatever the caller said ("next Tuesday at 3", "15:00", "3pm") into a real calendar slot. From there the workflow routes to one of four tools — book, check availability, reschedule, cancel — all backed by Google Calendar. A single "Business Config" node centralizes services, pricing, hours, and policies so the agent's knowledge has one source of truth instead of being scattered across nodes. Every call is logged to Google Sheets, and important events (new bookings, cancellations) trigger a real-time Slack alert to the team.
