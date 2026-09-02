@@ -27,14 +27,14 @@
           "value": "1MTWwNqlxDtvkq27sXroV8rPXOTZzIIbPNYitwxN1dgI",
           "mode": "list",
           "cachedResultName": "Daily Log Summaries",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MTWwNqlxDtvkq27sXroV8rPXOTZzIIbPNYitwxN1dgI/edit?usp=drivesdk"
+          "cachedResultUrl": "YOUR_SPREADSHEET_ID"
         },
         "sheetName": {
           "__rl": true,
           "value": "gid=0",
           "mode": "list",
           "cachedResultName": "Sheet1",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MTWwNqlxDtvkq27sXroV8rPXOTZzIIbPNYitwxN1dgI/edit#gid=0"
+          "cachedResultUrl": "YOUR_SPREADSHEET_ID"
         },
         "options": {}
       },
