@@ -24,17 +24,17 @@
       "parameters": {
         "documentId": {
           "__rl": true,
-          "value": "1MTWwNqlxDtvkq27sXroV8rPXOTZzIIbPNYitwxN1dgI",
+          "value": "YOUR_SPREADSHEET_ID",
           "mode": "list",
           "cachedResultName": "Daily Log Summaries",
-          "cachedResultUrl": "YOUR_SPREADSHEET_ID"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_SPREADSHEET_ID/edit?usp=drivesdk"
         },
         "sheetName": {
           "__rl": true,
           "value": "gid=0",
           "mode": "list",
           "cachedResultName": "Sheet1",
-          "cachedResultUrl": "YOUR_SPREADSHEET_ID"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_SPREADSHEET_ID/edit#gid=0"
         },
         "options": {}
       },
@@ -73,7 +73,7 @@
         "select": "channel",
         "channelId": {
           "__rl": true,
-          "value": "C0BPCKVGJF5",
+          "value": "YOUR_SLACK_CHANNEL_ID",
           "mode": "list",
           "cachedResultName": "recep-daily-summaries"
         },
