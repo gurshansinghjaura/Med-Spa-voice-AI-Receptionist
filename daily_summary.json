@@ -1,0 +1,150 @@
+{
+  "name": "Growth Spike AI — Daily Summary",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 20
+            }
+          ]
+        }
+      },
+      "id": "76f2b4dc-2fa0-4f0d-bb91-8a917345a80f",
+      "name": "Daily 8 PM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1MTWwNqlxDtvkq27sXroV8rPXOTZzIIbPNYitwxN1dgI",
+          "mode": "list",
+          "cachedResultName": "Daily Log Summaries",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MTWwNqlxDtvkq27sXroV8rPXOTZzIIbPNYitwxN1dgI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MTWwNqlxDtvkq27sXroV8rPXOTZzIIbPNYitwxN1dgI/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "30619b3b-6b73-4958-a634-13e33b4b814e",
+      "name": "Read Call Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        0
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "YOUR_CREDENTIAL_ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all().map(i => i.json).filter(r => r && Object.keys(r).length > 0 && r.timestamp);\nconst today = DateTime.now().setZone('Asia/Kolkata').toFormat('yyyy-LL-dd');\nconst todays = rows.filter(r => String(r.timestamp).slice(0, 10) === today);\n\nconst count = (out) => todays.filter(r => r.outcome === out).length;\nconst booked = count('booked');\nconst rescheduled = count('rescheduled');\nconst cancelled = count('cancelled');\nconst questions = count('question_answered');\nconst availChecks = count('availability_checked');\nconst total = todays.length;\n\n// Busiest service among bookings\nconst svcCounts = {};\ntodays.filter(r => r.outcome === 'booked' && r.service).forEach(r => { svcCounts[r.service] = (svcCounts[r.service] || 0) + 1; });\nlet busiest = '—';\nlet max = 0;\nfor (const k in svcCounts) { if (svcCounts[k] > max) { max = svcCounts[k]; busiest = k; } }\n\nconst dateLabel = DateTime.now().setZone('Asia/Kolkata').toFormat('cccc, LLLL d, yyyy');\n\nlet text;\nif (total === 0) {\n  text = '\\uD83D\\uDCCA *Glow MedSpa — Daily Summary (' + dateLabel + ')*\\nNo voice activity recorded today.';\n} else {\n  text = '\\uD83D\\uDCCA *Glow MedSpa — Daily Summary (' + dateLabel + ')*\\n' +\n    '\\u2022 Total actions handled: ' + total + '\\n' +\n    '\\uD83D\\uDFE2 Appointments booked: ' + booked + '\\n' +\n    '\\uD83D\\uDD04 Rescheduled: ' + rescheduled + '\\n' +\n    '\\uD83D\\uDD34 Cancelled: ' + cancelled + '\\n' +\n    '\\u2139\\uFE0F Availability checks: ' + availChecks + '\\n' +\n    '\\u2753 Questions answered: ' + questions + '\\n' +\n    '\\u2B50 Busiest service: ' + busiest;\n}\n\nreturn [{ json: { summaryText: text, total: total } }];"
+      },
+      "id": "76948bc1-2462-45ca-a4f7-db2c1530d1fa",
+      "name": "Build Daily Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BPCKVGJF5",
+          "mode": "list",
+          "cachedResultName": "recep-daily-summaries"
+        },
+        "text": "={{$json.summaryText}}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        672,
+        0
+      ],
+      "id": "a37d69b5-51b0-4a0b-9e75-bf6b63f1c050",
+      "name": "Send a message",
+      "webhookId": "736d8fb0-d628-4d34-bf05-ead5a9495544",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "YOUR_CREDENTIAL_ID"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Daily 8 PM": {
+      "main": [
+        [
+          {
+            "node": "Read Call Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Call Log": {
+      "main": [
+        [
+          {
+            "node": "Build Daily Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Daily Summary": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "adc8fbce-2ba9-4e58-a2da-7e58004263ea",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f53fdea333ef619cc55412fb525070a8cde3e97bda99780420ea2747cb06b6e1"
+  },
+  "nodeGroups": [],
+  "id": "csyTNQumJ8hYEktC",
+  "tags": []
+}

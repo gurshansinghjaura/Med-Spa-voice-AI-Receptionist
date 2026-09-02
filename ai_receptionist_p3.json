@@ -1,0 +1,2079 @@
+{
+  "name": "AI Receptionist P3",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "growthspike-ai-frontdesk",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "4ad37088-6f50-4f1e-a2d8-5f0dacbbded5",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -2464,
+        608
+      ],
+      "webhookId": "ce99de0e-9642-4d3a-ab7c-2ab6a7fea855"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body || $json; const messageType = body.message?.type || \"unknown\"; return [{ json: { ...body, messageType } }];"
+      },
+      "id": "5bd60682-f06b-4a01-a9f3-ba6533c46c74",
+      "name": "Extract Message Type'",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2240,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.messageType}}",
+                    "rightValue": "tool-calls",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "a5673c6b-529f-4f76-ae9e-a48e1d0591c2"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "2c76dfc4-ed36-486f-b6d0-9b11f4c8cd99",
+      "name": "'Route by Message Type'",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -2016,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body || $json;\nlet functionName = \"\";\nlet functionArgs = {};\nlet toolCallId = \"\";\nlet source = \"unknown\";\n\n// ----------------------\n// VAPI\n// ----------------------\nif (\n  body.message &&\n  body.message.toolCalls &&\n  body.message.toolCalls.length > 0\n) {\n  const tool = body.message.toolCalls[0];\n  functionName = tool.function?.name || \"\";\n  functionArgs = tool.function?.arguments || {};\n  toolCallId = tool.id || \"\";\n  source = \"vapi\";\n}\n// ----------------------\n// ElevenLabs\n// ----------------------\nelse if (\n  body.tool_calls &&\n  body.tool_calls.length > 0\n) {\n  const tool = body.tool_calls[0];\n  functionName = tool.name || \"\";\n  functionArgs = tool.parameters || {};\n  toolCallId = tool.id || \"\";\n  source = \"elevenlabs\";\n}\n\n// Some platforms deliver arguments as a JSON string — parse defensively.\nif (typeof functionArgs === \"string\") {\n  try { functionArgs = JSON.parse(functionArgs); } catch (e) { functionArgs = {}; }\n}\n\n// ----------------------\n// Fallback if nothing matched\n// ----------------------\nif (!functionName) {\n  functionName = \"fallback\";\n}\n\nreturn [\n  {\n    json: {\n      source,\n      functionName,\n      functionArgs,\n      toolCallId\n    }\n  }\n];"
+      },
+      "id": "2b6878cb-ee4d-4fd0-b1ff-f4a2759e7def",
+      "name": "Normalize Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1792,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"platform\": {\n    \"name\": \"Growth Spike AI Front Desk\",\n    \"version\": \"1.0.0\",\n    \"environment\": \"production\"\n  },\n  \"business\": {\n    \"name\": \"Glow MedSpa\",\n    \"industry\": \"Medical Spa\",\n    \"timezone\": \"Asia/Kolkata\",\n    \"currency\": \"INR\",\n    \"website\": \"https://www.glowmedspa.com\",\n    \"email\": \"hello@growthspikeai.com\",\n    \"phone\": \"+91XXXXXXXXXX\",\n    \"address\": \"New Delhi, India\"\n  },\n  \"voice\": {\n    \"assistantName\": \"Emma\",\n    \"personality\": \"Warm, professional, confident and conversational\",\n    \"tone\": \"Friendly\",\n    \"language\": \"English\",\n    \"maxResponseLength\": 120\n  },\n  \"calendar\": {\n    \"calendarId\": \"59053a19b2e79c6517db9122b856cf318657c5d4c4ad78cfeb6441bf479569d5@group.calendar.google.com\",\n    \"slotDuration\": 60,\n    \"bufferMinutes\": 15,\n    \"workingHours\": {\n      \"monday\": {\n        \"start\": \"09:00\",\n        \"end\": \"18:00\"\n      },\n      \"tuesday\": {\n        \"start\": \"09:00\",\n        \"end\": \"18:00\"\n      },\n      \"wednesday\": {\n        \"start\": \"09:00\",\n        \"end\": \"18:00\"\n      },\n      \"thursday\": {\n        \"start\": \"09:00\",\n        \"end\": \"18:00\"\n      },\n      \"friday\": {\n        \"start\": \"09:00\",\n        \"end\": \"18:00\"\n      },\n      \"saturday\": {\n        \"start\": \"10:00\",\n        \"end\": \"16:00\"\n      },\n      \"sunday\": {\n        \"closed\": true\n      }\n    }\n  },\n  \"policies\": {\n    \"cancellationNoticeHours\": 24,\n    \"lateArrivalGraceMinutes\": 15,\n    \"minimumBookingNoticeHours\": 2,\n    \"maximumAdvanceBookingDays\": 90\n  },\n  \"services\": [\n    {\n      \"id\": \"botox\",\n      \"name\": \"Botox Consultation\",\n      \"price\": {\n        \"amount\": 12000,\n        \"currency\": \"INR\"\n      },\n      \"duration\": 30,\n      \"consultationRequired\": true,\n      \"description\": \"Botox consultation and wrinkle treatment.\"\n    },\n    {\n      \"id\": \"hydrafacial\",\n      \"name\": \"HydraFacial\",\n      \"price\": {\n        \"amount\": 3500,\n        \"currency\": \"INR\"\n      },\n      \"duration\": 60,\n      \"consultationRequired\": false,\n      \"description\": \"Deep cleansing and hydration facial.\"\n    },\n    {\n      \"id\": \"laser\",\n      \"name\": \"Laser Hair Removal\",\n      \"price\": {\n        \"amount\": 5000,\n        \"currency\": \"INR\"\n      },\n      \"duration\": 45,\n      \"consultationRequired\": true,\n      \"description\": \"Laser hair reduction treatment.\"\n    },\n    {\n      \"id\": \"fillers\",\n      \"name\": \"Dermal Fillers\",\n      \"price\": {\n        \"amount\": 18000,\n        \"currency\": \"INR\"\n      },\n      \"duration\": 45,\n      \"consultationRequired\": true,\n      \"description\": \"Facial volume restoration using dermal fillers.\"\n    },\n    {\n      \"id\": \"microneedling\",\n      \"name\": \"Microneedling\",\n      \"price\": {\n        \"amount\": 6500,\n        \"currency\": \"INR\"\n      },\n      \"duration\": 60,\n      \"consultationRequired\": true,\n      \"description\": \"Collagen induction therapy.\"\n    },\n    {\n      \"id\": \"chemical_peel\",\n      \"name\": \"Chemical Peel\",\n      \"price\": {\n        \"amount\": 4500,\n        \"currency\": \"INR\"\n      },\n      \"duration\": 45,\n      \"consultationRequired\": false,\n      \"description\": \"Skin resurfacing treatment.\"\n    }\n  ],\n  \"faq\": {\n    \"consultation\": \"Some treatments require a consultation before booking.\",\n    \"aftercare\": \"Specific aftercare instructions will be provided after treatment.\",\n    \"payment\": \"Major cards, UPI and cash are accepted.\"\n  },\n  \"integrations\": {\n    \"googleCalendar\": true,\n    \"googleSheets\": true,\n    \"gmail\": true,\n    \"knowledgeBase\": true,\n    \"crm\": false,\n    \"sms\": false\n  },\n  \"logging\": {\n    \"enabled\": true,\n    \"storeCalls\": true,\n    \"storeBookings\": true,\n    \"storeErrors\": true\n  },\n  \"ai\": {\n    \"allowMedicalAdvice\": false,\n    \"fallbackMessage\": \"I'm not completely sure about that. Let me have one of our specialists contact you.\",\n    \"escalateUnknownQuestions\": true,\n    \"useKnowledgeBase\": true\n  }\n}",
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "92f82fdd-2bd1-4eb9-8f4a-1f151068ff15",
+      "name": "Business Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -1568,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const cfg = $json;\nconst args = cfg.functionArgs || {};\nconst slotDuration = (cfg.calendar && cfg.calendar.slotDuration) || 60;\nconst zone = 'Asia/Kolkata';\n\nfunction parseTime(t) {\n  if (t === undefined || t === null) return null;\n  let s = String(t).trim().toLowerCase();\n  if (!s) return null;\n  let m = s.match(/^(\\d{1,2}):(\\d{2})\\s*(am|pm)?$/);\n  if (m) {\n    let h = parseInt(m[1], 10);\n    let min = parseInt(m[2], 10);\n    if (m[3] === 'pm' && h < 12) h += 12;\n    if (m[3] === 'am' && h === 12) h = 0;\n    return { h: h, min: min };\n  }\n  m = s.match(/^(\\d{1,2})\\s*(am|pm)$/);\n  if (m) {\n    let h = parseInt(m[1], 10);\n    if (m[2] === 'pm' && h < 12) h += 12;\n    if (m[2] === 'am' && h === 12) h = 0;\n    return { h: h, min: 0 };\n  }\n  m = s.match(/^(\\d{1,2})$/);\n  if (m) {\n    return { h: parseInt(m[1], 10), min: 0 };\n  }\n  return null;\n}\n\nlet startDT = null;\n// Accept combined date-time under any of the field names platforms send (book or reschedule).\nconst combined = args.requested_datetime || args.new_requested_datetime || args.new_date_time || args.datetime || args.new_datetime || null;\n// Accept separate date/time for both booking (requested_*) and reschedule (new_requested_*) tools.\nconst datePart = args.requested_date || args.new_requested_date || args.new_date || null;\nconst timePart = args.requested_time || args.new_requested_time || args.new_time || null;\nif (combined) {\n  startDT = DateTime.fromISO(String(combined), { zone: zone });\n} else if (datePart) {\n  const tp = parseTime(timePart);\n  if (tp) {\n    startDT = DateTime.fromISO(String(datePart), { zone: zone }).set({ hour: tp.h, minute: tp.min, second: 0, millisecond: 0 });\n  }\n}\n\nconst slotValid = !!(startDT && startDT.isValid);\n\nconst out = {\n  source: cfg.source,\n  functionName: cfg.functionName,\n  functionArgs: args,\n  toolCallId: cfg.toolCallId,\n  calendar: cfg.calendar,\n  slotDuration: slotDuration,\n  slotValid: slotValid,\n  slotStartISO: null,\n  slotEndISO: null,\n  slotStartLocalISO: null,\n  slotEndLocalISO: null,\n  slotSpokenTime: null,\n  slotSpokenDate: null\n};\n\nif (slotValid) {\n  const endDT = startDT.plus({ minutes: slotDuration });\n  out.slotStartISO = startDT.toUTC().toISO();\n  out.slotEndISO = endDT.toUTC().toISO();\n  out.slotStartLocalISO = startDT.toISO();\n  out.slotEndLocalISO = endDT.toISO();\n  out.slotSpokenTime = startDT.toFormat('h:mm a');\n  out.slotSpokenDate = startDT.toFormat('cccc, LLLL d');\n}\n\nreturn [{ json: out }];"
+      },
+      "id": "e1528e37-5c23-46cd-94cf-b9dc6b405f09",
+      "name": "Parse Request",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1344,
+        608
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{$json.functionName}}",
+                    "rightValue": "book_appointment",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "07199dec-9e0b-456a-b23c-30cd4bff507f"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "5eb1ffd1-8765-4d59-b162-4867a11ba7f3",
+                    "leftValue": "={{$json.functionName}}",
+                    "rightValue": "check_availability",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "1e2c14ca-d95f-486a-b3c2-7b288a406fcd",
+                    "leftValue": "={{$json.functionName}}",
+                    "rightValue": "answer_question",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "eac94186-4d95-4919-809b-9e30d697e90c",
+                    "leftValue": "={{$json.functionName}}",
+                    "rightValue": "reschedule_appointment",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "fbc232a5-c671-4b66-8c5a-84b556c6f8f1",
+                    "leftValue": "={{$json.functionName}}",
+                    "rightValue": "cancel_appointment",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals",
+                      "name": "filter.operator.equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b22ca626-ede8-40be-8e41-75b0d83ce4c1",
+      "name": "Function Router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -1120,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b1a2c3d4-0001-0001-0001-000000000001",
+              "leftValue": "={{$json.slotValid}}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "812b9ad3-1f1f-4b18-b3e3-61f7c9ad82e0",
+      "name": "Booking Time Provided?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "59053a19b2e79c6517db9122b856cf318657c5d4c4ad78cfeb6441bf479569d5@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Med Spa (GS)"
+        },
+        "returnAll": true,
+        "timeMin": "={{$('Parse Request').item.json.slotStartISO}}",
+        "timeMax": "={{$('Parse Request').item.json.slotEndISO}}",
+        "options": {}
+      },
+      "id": "992fc860-9081-4195-8bc3-963f2f937a65",
+      "name": "Check Availability",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        0
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "YOUR_CREDENTIAL_ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "27e3f3e2-03e0-4545-a810-c25e21319a5a",
+              "leftValue": "={{$json.id}}",
+              "rightValue": 0,
+              "operator": {
+                "type": "string",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "9f207b32-f2c0-42cb-a436-cb35cabc124a",
+      "name": "Slot Available?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "59053a19b2e79c6517db9122b856cf318657c5d4c4ad78cfeb6441bf479569d5@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Med Spa (GS)"
+        },
+        "start": "={{$('Parse Request').item.json.slotStartLocalISO}}",
+        "end": "={{$('Parse Request').item.json.slotEndLocalISO}}",
+        "additionalFields": {
+          "description": "=Booked via voice assistant ({{$('Parse Request').item.json.source}}). Phone: {{$('Parse Request').item.json.functionArgs.customer_phone}}. Service: {{$('Parse Request').item.json.functionArgs.service}}",
+          "summary": "={{$('Parse Request').item.json.functionArgs.customer_name}} - Appointment"
+        }
+      },
+      "id": "1440715e-06f9-4ca9-be40-bddc69f66960",
+      "name": "Create an event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        816,
+        0
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "YOUR_CREDENTIAL_ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst toolCallId = $('Parse Request').first().json.toolCallId;\n\nlet resultText = \"\";\n\nif (input.id) {\n  const start = new Date(input.start.dateTime);\n  const formatted = start.toLocaleString('en-IN', {\n    weekday: 'long', month: 'long', day: 'numeric',\n    hour: 'numeric', minute: '2-digit', hour12: true,\n    timeZone: 'Asia/Kolkata'\n  });\n  resultText = \"Your appointment is confirmed for \" + formatted + \".\";\n} else {\n  resultText = \"Sorry, there was an error booking your appointment. Please try again.\";\n}\n\nreturn [{\n  json: {\n    results: [\n      {\n        toolCallId: toolCallId,\n        result: resultText\n      }\n    ]\n  }\n}];"
+      },
+      "id": "ba72d265-b7d1-40d9-91f9-7ed4fdf5a8a8",
+      "name": "Format Platform Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "8c6c7147-f77b-4c52-ad19-db681edbb310",
+      "name": "Send Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1392,
+        656
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { logOutcome: 'booked', important: true } }];"
+      },
+      "id": "69dc9896-8f1d-462d-9788-53d559e1fd1a",
+      "name": "Tag: Booked",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1392,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const toolCallId = $('Parse Request').first().json.toolCallId;\nconst when = $('Parse Request').first().json.slotSpokenTime;\nreturn [{ json: { results: [{ toolCallId: toolCallId, result: \"I'm sorry, \" + (when ? when + \" \" : \"that time \") + \"is already booked. Would you like me to check a different time?\" }] } }];"
+      },
+      "id": "d840ab5e-cc15-452e-88af-7f94490911c9",
+      "name": "Slot Taken Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { logOutcome: 'slot_taken', important: false } }];"
+      },
+      "id": "4f7fbbf5-b92d-497f-b43b-4a6acb411ba7",
+      "name": "Tag: Slot Taken",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1392,
+        848
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const toolCallId = $('Parse Request').first().json.toolCallId;\nreturn [{ json: { results: [{ toolCallId: toolCallId, result: \"I'd be happy to book that for you. What day and time would you like to come in? For example, you can say tomorrow at 2 PM.\" }] } }];"
+      },
+      "id": "4645b362-e740-48cf-8289-7845470e61f9",
+      "name": "Need Time (Book)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { logOutcome: 'need_time', important: false } }];"
+      },
+      "id": "b7c3cd41-b316-4fa2-85a8-7b11bedc6319",
+      "name": "Tag: Need Time",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1392,
+        1040
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b1a2c3d4-0002-0002-0002-000000000002",
+              "leftValue": "={{$json.slotValid}}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "82bc8b15-2209-427c-a051-c3e8d63f3587",
+      "name": "Check Time Provided?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        624
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "59053a19b2e79c6517db9122b856cf318657c5d4c4ad78cfeb6441bf479569d5@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Med Spa (GS)"
+        },
+        "returnAll": true,
+        "timeMin": "={{$('Parse Request').item.json.slotStartISO}}",
+        "timeMax": "={{$('Parse Request').item.json.slotEndISO}}",
+        "options": {}
+      },
+      "id": "aced66fe-99e8-49c1-ade9-d40e74f07013",
+      "name": "Check Availability (Query Only)",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        816,
+        624
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "YOUR_CREDENTIAL_ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst toolCallId = $('Parse Request').first().json.toolCallId;\nconst when = $('Parse Request').first().json.slotSpokenTime;\n\nconst isAvailable = !item.id;\n\nlet resultText = \"\";\nif (isAvailable) {\n  resultText = \"Good news, \" + (when ? when + \" \" : \"that time \") + \"is available. Would you like me to book it for you?\";\n} else {\n  resultText = \"Sorry, \" + (when ? when + \" \" : \"that time \") + \"is already booked. Would you like a different time?\";\n}\n\nreturn [{ json: { results: [{ toolCallId: toolCallId, result: resultText }] } }];"
+      },
+      "id": "c7808671-5241-4290-b8e2-388504ecc02c",
+      "name": "Build Availability Result",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        624
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { logOutcome: 'availability_checked', important: false } }];"
+      },
+      "id": "23ec7e93-6385-4dca-b7c5-286b81eaae52",
+      "name": "Tag: Availability Checked",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1392,
+        1232
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const toolCallId = $('Parse Request').first().json.toolCallId;\nreturn [{ json: { results: [{ toolCallId: toolCallId, result: \"Sure, I can check that. What day and time should I look at? For example, tomorrow at 2 PM.\" }] } }];"
+      },
+      "id": "b80efd6c-52f8-4ec9-890a-0c4dd2ea256d",
+      "name": "Need Time (Check)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        816
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{$json.functionArgs.question}}",
+        "options": {
+          "systemMessage": "You are Emma, the AI front desk assistant for Glow MedSpa. Answer caller questions using ONLY the knowledge base information provided to you via the vector store tool.\n\nRules:\n- Never invent prices, hours, or medical claims not in the knowledge base.\n- Never give medical advice, diagnosis, or safety guarantees — always direct medical questions to an in-person consultation.\n- If the answer isn't in the knowledge base, say: \"I'm not completely sure about that — let me have one of our specialists contact you.\" Do not guess.\n- Keep answers under 3 sentences, warm and conversational, suitable for being spoken aloud on a phone call.\n- If asked about pricing, always give the exact price from the knowledge base, never a range you're unsure of."
+        }
+      },
+      "id": "0f6a29ce-2209-441b-85d4-bd8dc7e91158",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        704,
+        960
+      ]
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "id": "c74d9390-1f4d-4c18-84b3-6c219dae58d3",
+      "name": "Groq Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        688,
+        1200
+      ],
+      "credentials": {
+        "groqApi": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "YOUR_CREDENTIAL_ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Search the Glow MedSpa knowledge base for information about services, pricing, hours, policies, and aftercare.",
+        "memoryKey": {
+          "__rl": true,
+          "value": "medspa_kb",
+          "mode": "list",
+          "cachedResultName": "medspa_kb"
+        }
+      },
+      "id": "2c539eeb-08e8-43b5-b834-bfd918907de3",
+      "name": "Simple Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        816,
+        1200
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "21bfdc56-f28e-431f-b4b5-7e3051253f15",
+      "name": "Embeddings Google Gemini",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        896,
+        1408
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "YOUR_CREDENTIAL_ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const answer = $input.first().json.output;\nconst toolCallId = $('Parse Request').first().json.toolCallId;\n\nreturn [{\n  json: {\n    results: [\n      {\n        toolCallId: toolCallId,\n        result: answer\n      }\n    ]\n  }\n}];"
+      },
+      "id": "6b339b97-ab9d-4fe7-80b8-ccbb75685f1f",
+      "name": "Format Answer Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        1168
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { logOutcome: 'question_answered', important: false } }];"
+      },
+      "id": "0dcf8684-bb47-41ea-999d-a1aafb2e2812",
+      "name": "Tag: Question Answered",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1392,
+        1712
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "59053a19b2e79c6517db9122b856cf318657c5d4c4ad78cfeb6441bf479569d5@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Med Spa (GS)"
+        },
+        "returnAll": true,
+        "timeMin": "={{$now.toISO()}}",
+        "timeMax": "={{$now.plus({days: 90}).toISO()}}",
+        "options": {}
+      },
+      "id": "90b529c0-f3bb-47ed-9a3c-e71797b3fd15",
+      "name": "Get many events1",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        -896,
+        1808
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "YOUR_CREDENTIAL_ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst args = $('Parse Request').first().json.functionArgs;\n\nconst callerPhone = (args.customer_phone || args.phone || '').replace(/\\D/g, '');\nconst callerName = (args.customer_name || args.full_name || '').toLowerCase().trim();\n\nconst matches = items.filter(item => {\n  if (!item.json || !item.json.id) return false;\n  const desc = (item.json.description || '').replace(/\\D/g, '');\n  const summary = (item.json.summary || '').toLowerCase();\n\n  const phoneMatch = callerPhone && callerPhone.length >= 5 && desc.includes(callerPhone);\n  const nameMatch = callerName && summary.includes(callerName);\n\n  return phoneMatch || nameMatch;\n});\n\n// Prefer the soonest upcoming matching appointment.\nmatches.sort((a, b) => {\n  const sa = (a.json.start && a.json.start.dateTime) || '';\n  const sb = (b.json.start && b.json.start.dateTime) || '';\n  return sa < sb ? -1 : sa > sb ? 1 : 0;\n});\n\nreturn [{\n  json: {\n    matchCount: matches.length,\n    matches: matches.map(m => m.json)\n  }\n}];"
+      },
+      "id": "42969c9f-9c70-4873-8307-fc87018d4245",
+      "name": "Find Matching Appointment1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -672,
+        1808
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f86ac606-cdfb-4a82-90d9-17a961a0ef3e",
+              "leftValue": "={{$json.matchCount}}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "f37f3f0c-26e1-40b9-aed1-76583a8b2320",
+      "name": "Appointment Found? (Reschedule)",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -448,
+        1808
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b1a2c3d4-0003-0003-0003-000000000003",
+              "leftValue": "={{$('Parse Request').item.json.slotValid}}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "2197e991-c2d2-4eeb-9f6e-2145fd8eb656",
+      "name": "New Time Provided?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -224,
+        1808
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "59053a19b2e79c6517db9122b856cf318657c5d4c4ad78cfeb6441bf479569d5@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Med Spa (GS)"
+        },
+        "returnAll": true,
+        "timeMin": "={{$('Parse Request').item.json.slotStartISO}}",
+        "timeMax": "={{$('Parse Request').item.json.slotEndISO}}",
+        "options": {}
+      },
+      "id": "4fc31808-e1b4-4681-8780-16fb5a951c2a",
+      "name": "Check New Slots",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        1760
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "YOUR_CREDENTIAL_ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const events = $input.all().map(i => i.json).filter(e => e && e.id);\nconst ownId = $('Find Matching Appointment1').first().json.matches[0].id;\nconst conflicts = events.filter(e => e.id !== ownId);\nreturn [{ json: { free: conflicts.length === 0, toolCallId: $('Parse Request').first().json.toolCallId } }];"
+      },
+      "id": "9b7445e5-998a-4078-979f-c28dc5083853",
+      "name": "Evaluate New Slot",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        1760
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "b1a2c3d4-0004-0004-0004-000000000004",
+              "leftValue": "={{$json.free}}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "0042e885-17c8-45fe-ac74-e330af5009c5",
+      "name": "New Slot Free?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        1760
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "59053a19b2e79c6517db9122b856cf318657c5d4c4ad78cfeb6441bf479569d5@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Med Spa (GS)"
+        },
+        "eventId": "={{$('Find Matching Appointment1').first().json.matches[0].id}}",
+        "updateFields": {
+          "end": "={{$('Parse Request').item.json.slotEndLocalISO}}",
+          "start": "={{$('Parse Request').item.json.slotStartLocalISO}}"
+        }
+      },
+      "id": "3aee8690-ac14-4950-af75-9f79346d1a4c",
+      "name": "Update an event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        816,
+        1664
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "YOUR_CREDENTIAL_ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const toolCallId = $('Parse Request').first().json.toolCallId;\nconst when = $('Parse Request').first().json.slotSpokenTime;\nconst day = $('Parse Request').first().json.slotSpokenDate;\nreturn [{ json: { results: [{ toolCallId: toolCallId, result: \"Done. Your appointment has been rescheduled to \" + (day ? day + \" at \" : \"\") + (when || \"the new time\") + \". We look forward to seeing you.\" }] } }];"
+      },
+      "id": "2e8a3b79-7446-4e4c-8854-cae7b0c33ceb",
+      "name": "Format Reschedule Response1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        1664
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { logOutcome: 'rescheduled', important: true } }];"
+      },
+      "id": "68d27d7f-43d3-4fdf-a9f3-b42fbaa149c4",
+      "name": "Tag: Rescheduled",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1392,
+        1904
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const toolCallId = $('Parse Request').first().json.toolCallId;\nconst when = $('Parse Request').first().json.slotSpokenTime;\nreturn [{ json: { results: [{ toolCallId: toolCallId, result: \"I'm sorry, \" + (when ? when + \" \" : \"that new time \") + \"is already booked. Would you like to try a different time?\" }] } }];"
+      },
+      "id": "b79a37a3-2c3f-4fc9-ab45-073c7fcd1009",
+      "name": "Reschedule Slot Taken",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        1856
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { logOutcome: 'reschedule_slot_taken', important: false } }];"
+      },
+      "id": "e39a20cb-e920-4a1a-8a1f-24d83666948c",
+      "name": "Tag: Reschedule Slot Taken",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1392,
+        2096
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const toolCallId = $('Parse Request').first().json.toolCallId;\nreturn [{ json: { results: [{ toolCallId: toolCallId, result: \"I found your appointment. What new day and time would you like to move it to?\" }] } }];"
+      },
+      "id": "d7b386c3-0e08-49ec-9784-1860aa739d3e",
+      "name": "Need Time (Reschedule)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        2048
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const toolCallId = $('Parse Request').first().json.toolCallId;\nreturn [{ json: { results: [{ toolCallId: toolCallId, result: \"I couldn't find an existing appointment under that name or number to reschedule. Could you confirm the name and phone number the appointment was booked under?\" }] } }];"
+      },
+      "id": "248fe208-e5a9-4c08-8d83-159c16198fbd",
+      "name": "Format No-Match Reschedule",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        2240
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { logOutcome: 'no_match', important: false } }];"
+      },
+      "id": "ec6e6935-826c-4c8e-8b5e-6eeea81cca66",
+      "name": "Tag: No Match",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1392,
+        2384
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "59053a19b2e79c6517db9122b856cf318657c5d4c4ad78cfeb6441bf479569d5@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Med Spa (GS)"
+        },
+        "returnAll": true,
+        "timeMin": "={{$now.toISO()}}",
+        "timeMax": "={{$now.plus({days: 90}).toISO()}}",
+        "options": {}
+      },
+      "id": "05e9070b-3fc6-4f71-a206-dd358ace1c5c",
+      "name": "Get many events",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        2576
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "YOUR_CREDENTIAL_ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst args = $('Parse Request').first().json.functionArgs;\nconst callerPhone = (args.customer_phone || args.phone || '').replace(/\\D/g, '');\nconst callerName = (args.customer_name || args.full_name || '').toLowerCase().trim();\n\nconst matches = items.filter(item => {\n  if (!item.json || !item.json.id) return false;\n  const desc = (item.json.description || '').replace(/\\D/g, '');\n  const summary = (item.json.summary || '').toLowerCase();\n  const phoneMatch = callerPhone && callerPhone.length >= 5 && desc.includes(callerPhone);\n  const nameMatch = callerName && summary.includes(callerName);\n  return phoneMatch || nameMatch;\n});\n\nmatches.sort((a, b) => {\n  const sa = (a.json.start && a.json.start.dateTime) || '';\n  const sb = (b.json.start && b.json.start.dateTime) || '';\n  return sa < sb ? -1 : sa > sb ? 1 : 0;\n});\n\nreturn [{\n  json: {\n    matchCount: matches.length,\n    matches: matches.map(m => ({ id: m.json.id, summary: m.json.summary, start: (m.json.start && m.json.start.dateTime) || null }))\n  }\n}];"
+      },
+      "id": "ed21efcb-6de3-449e-91e2-7c886431ffcb",
+      "name": "Find Matching Appointment",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        2576
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "bc4fc7a2-7de1-4753-8e8d-b084f624f9a8",
+              "leftValue": "={{$json.matchCount}}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a428fda4-bdaf-40db-bcc1-369568830255",
+      "name": "Match Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        2576
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "59053a19b2e79c6517db9122b856cf318657c5d4c4ad78cfeb6441bf479569d5@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Med Spa (GS)"
+        },
+        "eventId": "={{$json.matches[0].id}}",
+        "options": {}
+      },
+      "id": "b383f054-0ef4-4f20-8f3f-dd86390d05ed",
+      "name": "Delete Appointment",
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        816,
+        2432
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "YOUR_CREDENTIAL_ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const toolCallId = $('Parse Request').first().json.toolCallId;\nreturn [{ json: { results: [{ toolCallId: toolCallId, result: \"Your appointment has been cancelled. Let us know if you'd like to book a new time.\" }] } }];"
+      },
+      "id": "af4e3168-4ba3-445e-8d87-b071d384ff4c",
+      "name": "Format Cancel Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        2432
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: { logOutcome: 'cancelled', important: true } }];"
+      },
+      "id": "28558dbf-3729-4477-9eea-e3ad8c3e1b5e",
+      "name": "Tag: Cancelled",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1392,
+        2576
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const toolCallId = $('Parse Request').first().json.toolCallId;\nconst matchCount = $json.matchCount;\n\nlet msg;\nif (matchCount === 0) {\n  msg = \"I couldn't find an appointment under that name or number. Could you tell me the date it's booked for?\";\n} else {\n  msg = \"I found a few appointments that might match. Could you tell me the date of the one you'd like to cancel?\";\n}\n\nreturn [{ json: { results: [{ toolCallId: toolCallId, result: msg }] } }];"
+      },
+      "id": "b1d3c87b-53c3-45ce-97c1-6943ae67a149",
+      "name": "Format No-Match Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1168,
+        2624
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const cfg = $('Parse Request').first().json;\nconst tag = $input.first().json;\nconst args = cfg.functionArgs || {};\n\nconst actionMap = {\n  book_appointment: 'Booking',\n  reschedule_appointment: 'Reschedule',\n  cancel_appointment: 'Cancellation',\n  check_availability: 'Availability Check',\n  answer_question: 'Question'\n};\nconst action = actionMap[cfg.functionName] || 'Other';\n\nconst callerName = args.customer_name || args.full_name || '';\nconst callerPhone = args.customer_phone || args.phone || '';\nconst service = args.service || '';\nconst requestedTime = [cfg.slotSpokenDate, cfg.slotSpokenTime].filter(Boolean).join(' at ');\nconst platform = cfg.source || 'unknown';\nconst outcome = tag.logOutcome || 'unknown';\nconst important = !!tag.important;\nconst timestamp = DateTime.now().setZone('Asia/Kolkata').toFormat('yyyy-LL-dd HH:mm:ss');\n\nconst emoji = outcome === 'booked' ? '\\uD83D\\uDFE2' : outcome === 'cancelled' ? '\\uD83D\\uDD34' : outcome === 'rescheduled' ? '\\uD83D\\uDD04' : '\\u2139\\uFE0F';\nconst slackText = emoji + ' *' + action + '* — ' + (callerName || 'Unknown') + (callerPhone ? ' (' + callerPhone + ')' : '') + (service ? ' • ' + service : '') + (requestedTime ? ' • ' + requestedTime : '') + ' • via ' + platform;\n\nreturn [{ json: {\n  timestamp: timestamp,\n  action: action,\n  outcome: outcome,\n  caller_name: callerName,\n  caller_phone: callerPhone,\n  service: service,\n  requested_time: requestedTime,\n  platform: platform,\n  execution_id: $execution.id,\n  important: important,\n  slackText: slackText\n} }];"
+      },
+      "id": "950c0fd8-37c6-4af8-95d0-89ad80cfe2f8",
+      "name": "Build Log Row",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1616,
+        1600
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "aa11bb22-cc33-dd44-ee55-ff6600000001",
+              "leftValue": "={{$json.important}}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "38a8ddf2-4e2d-485c-9eca-9d1e6a4e0355",
+      "name": "Important Event?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1840,
+        1696
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0BPCKVGJF5",
+          "mode": "list",
+          "cachedResultName": "recep-daily-summaries"
+        },
+        "text": "=={{$json.slackText}}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.5,
+      "position": [
+        2064,
+        1696
+      ],
+      "id": "99410592-c9c4-4dcc-b22c-5eb3e93d0081",
+      "name": "Send a message",
+      "webhookId": "2713406d-0609-48e0-a71f-ffd656c670a5",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "YOUR_CREDENTIAL_ID"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1uDj2pkBWIj3SqSsYGsSwAkR55ogZhj-Eq9j48sTKlG0",
+          "mode": "list",
+          "cachedResultName": "Med Spa booking agent",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uDj2pkBWIj3SqSsYGsSwAkR55ogZhj-Eq9j48sTKlG0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Call Log"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "action",
+              "displayName": "action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "outcome",
+              "displayName": "outcome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caller_name",
+              "displayName": "caller_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "caller_phone",
+              "displayName": "caller_phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "service",
+              "displayName": "service",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "requested_time",
+              "displayName": "requested_time",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "platform",
+              "displayName": "platform",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "execution_id",
+              "displayName": "execution_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "important",
+              "displayName": "important",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "slackText",
+              "displayName": "slackText",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "5c65d14f-124f-4e1c-a15d-6755fcf7b2bd",
+      "name": "Log to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1840,
+        1504
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_CREDENTIAL_ID",
+          "name": "YOUR_CREDENTIAL_ID"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Message Type'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Message Type'": {
+      "main": [
+        [
+          {
+            "node": "'Route by Message Type'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "'Route by Message Type'": {
+      "main": [
+        [
+          {
+            "node": "Normalize Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Payload": {
+      "main": [
+        [
+          {
+            "node": "Business Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Business Config": {
+      "main": [
+        [
+          {
+            "node": "Parse Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Request": {
+      "main": [
+        [
+          {
+            "node": "Function Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Function Router": {
+      "main": [
+        [
+          {
+            "node": "Booking Time Provided?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check Time Provided?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get many events1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get many events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Booking Time Provided?": {
+      "main": [
+        [
+          {
+            "node": "Check Availability",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Need Time (Book)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Availability": {
+      "main": [
+        [
+          {
+            "node": "Slot Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slot Available?": {
+      "main": [
+        [
+          {
+            "node": "Create an event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slot Taken Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event": {
+      "main": [
+        [
+          {
+            "node": "Format Platform Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Platform Response": {
+      "main": [
+        [
+          {
+            "node": "Send Response",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Tag: Booked",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag: Booked": {
+      "main": [
+        [
+          {
+            "node": "Build Log Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slot Taken Response": {
+      "main": [
+        [
+          {
+            "node": "Send Response",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Tag: Slot Taken",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag: Slot Taken": {
+      "main": [
+        [
+          {
+            "node": "Build Log Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Need Time (Book)": {
+      "main": [
+        [
+          {
+            "node": "Send Response",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Tag: Need Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag: Need Time": {
+      "main": [
+        [
+          {
+            "node": "Build Log Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Time Provided?": {
+      "main": [
+        [
+          {
+            "node": "Check Availability (Query Only)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Need Time (Check)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Availability (Query Only)": {
+      "main": [
+        [
+          {
+            "node": "Build Availability Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Availability Result": {
+      "main": [
+        [
+          {
+            "node": "Send Response",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Tag: Availability Checked",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag: Availability Checked": {
+      "main": [
+        [
+          {
+            "node": "Build Log Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Need Time (Check)": {
+      "main": [
+        [
+          {
+            "node": "Send Response",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Tag: Need Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Format Answer Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Vector Store": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Simple Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Answer Response": {
+      "main": [
+        [
+          {
+            "node": "Send Response",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Tag: Question Answered",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag: Question Answered": {
+      "main": [
+        [
+          {
+            "node": "Build Log Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many events1": {
+      "main": [
+        [
+          {
+            "node": "Find Matching Appointment1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Matching Appointment1": {
+      "main": [
+        [
+          {
+            "node": "Appointment Found? (Reschedule)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Appointment Found? (Reschedule)": {
+      "main": [
+        [
+          {
+            "node": "New Time Provided?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format No-Match Reschedule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Time Provided?": {
+      "main": [
+        [
+          {
+            "node": "Check New Slots",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Need Time (Reschedule)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check New Slots": {
+      "main": [
+        [
+          {
+            "node": "Evaluate New Slot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate New Slot": {
+      "main": [
+        [
+          {
+            "node": "New Slot Free?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Slot Free?": {
+      "main": [
+        [
+          {
+            "node": "Update an event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reschedule Slot Taken",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update an event": {
+      "main": [
+        [
+          {
+            "node": "Format Reschedule Response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Reschedule Response1": {
+      "main": [
+        [
+          {
+            "node": "Send Response",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Tag: Rescheduled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag: Rescheduled": {
+      "main": [
+        [
+          {
+            "node": "Build Log Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reschedule Slot Taken": {
+      "main": [
+        [
+          {
+            "node": "Send Response",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Tag: Reschedule Slot Taken",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag: Reschedule Slot Taken": {
+      "main": [
+        [
+          {
+            "node": "Build Log Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Need Time (Reschedule)": {
+      "main": [
+        [
+          {
+            "node": "Send Response",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Tag: Need Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format No-Match Reschedule": {
+      "main": [
+        [
+          {
+            "node": "Send Response",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Tag: No Match",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag: No Match": {
+      "main": [
+        [
+          {
+            "node": "Build Log Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many events": {
+      "main": [
+        [
+          {
+            "node": "Find Matching Appointment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Matching Appointment": {
+      "main": [
+        [
+          {
+            "node": "Match Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match Found?": {
+      "main": [
+        [
+          {
+            "node": "Delete Appointment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format No-Match Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Appointment": {
+      "main": [
+        [
+          {
+            "node": "Format Cancel Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Cancel Response": {
+      "main": [
+        [
+          {
+            "node": "Send Response",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Tag: Cancelled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag: Cancelled": {
+      "main": [
+        [
+          {
+            "node": "Build Log Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format No-Match Response": {
+      "main": [
+        [
+          {
+            "node": "Send Response",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Tag: No Match",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Log Row": {
+      "main": [
+        [
+          {
+            "node": "Important Event?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Important Event?": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "d0f5e891-d8b9-4d60-acbf-8304ee09effb",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f53fdea333ef619cc55412fb525070a8cde3e97bda99780420ea2747cb06b6e1"
+  },
+  "nodeGroups": [],
+  "id": "4BOfS7UZaOP75hK8",
+  "tags": []
+}
